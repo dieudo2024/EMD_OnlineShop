@@ -6,12 +6,10 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { Analytics } from "@vercel/analytics/next";
 
 function App() {
   return (
     <div className="app-container">
-      <Analytics/>
       <Header />
       <main className="main-content">
         <Routes>

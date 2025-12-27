@@ -1,4 +1,4 @@
-Link to Vercel:
+Link to the Website (Vercel): https://emd-online-shop.vercel.app/
 
 
 # 🛒 E-Commerce Web Application Capstone Project

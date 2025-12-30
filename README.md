@@ -35,7 +35,7 @@ Clone this project repository to your local machine using Git:
 
 ```bash
 git clone https://github.com/dieudo2024/EMD_OnlineShop.git 
-cd e-commerce-capstone
+cd emd_onlineshop
 ```
 Step 2: Install Dependencies
 

@@ -63,7 +63,7 @@ This application fetches all product and category data from the public DummyJSON
 
     API Base URL: https://dummyjson.com
 
-|| Feature List (Functional Requirements)
+## Feature List (Functional Requirements)
 
 The application implements all mandatory functional requirements for the capstone project.
 1. Product Listings & Data Fetching

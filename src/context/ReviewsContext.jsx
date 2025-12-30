@@ -3,6 +3,7 @@ import {
   loadReviewsFromStorage,
   saveReviewsToStorage,
 } from "../services/storage";
+import { sanitizeReviewPayload } from "../utils/security";
 
 const ReviewsContext = createContext();
 
@@ -16,11 +17,12 @@ export function ReviewsProvider({ children }) {
   }, [userReviews]);
 
   const addReview = (productId, review) => {
+    const safeReview = sanitizeReviewPayload(review);
     setUserReviews((prev) => {
       const current = prev[productId] || [];
       return {
         ...prev,
-        [productId]: [...current, review],
+        [productId]: [...current, safeReview],
       };
     });
   };

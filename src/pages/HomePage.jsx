@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchAllProducts, fetchCategories } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { useReviews } from "../context/ReviewsContext";
+import { sanitizeString } from "../utils/security";
 
 function computeAverageRating(allReviews) {
   if (!allReviews || allReviews.length === 0) return null;
@@ -117,7 +118,7 @@ function HomePage() {
           type="text"
           placeholder="Search by product name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(sanitizeString(e.target.value, { maxLength: 120 }))}
         />
 
         <select

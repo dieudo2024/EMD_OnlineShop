@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { sanitizeString } from '../utils/security';
 
 export default function SearchBar({ onSearch }) {
   // State for search input
@@ -6,7 +7,7 @@ export default function SearchBar({ onSearch }) {
 
   // Handle input change
   const handleChange = (e) => {
-    const value = e.target.value;
+    const value = sanitizeString(e.target.value, { maxLength: 120 });
     setSearchTerm(value);
     
     // Call parent callback function

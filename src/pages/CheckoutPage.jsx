@@ -3,9 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import CartSummary from "../components/CartSummary";
 import { saveLastOrderToStorage } from "../services/storage";
+import { sanitizeString } from "../utils/security";
 
 const GST = 0.05;
 const QST = 0.09975;
+
+const ALLOWED_PROVINCES = new Set([
+  "Quebec",
+  "Ontario",
+  "Alberta",
+  "British Columbia",
+  "Other",
+]);
 
 function CheckoutPage() {
   const { cartItems, subtotal, clearCart, getDiscountedPrice } = useCart();
@@ -26,7 +35,19 @@ function CheckoutPage() {
   const handlePlaceOrder = (e) => {
     e.preventDefault();
 
-    if (!name || !address || !city || !province || !postalCode) {
+    const safeName = sanitizeString(name, { maxLength: 120 });
+    const safeAddress = sanitizeString(address, { maxLength: 180 });
+    const safeCity = sanitizeString(city, { maxLength: 120 });
+    const safeProvince = ALLOWED_PROVINCES.has(province)
+      ? province
+      : "Other";
+    const safePostalCode = sanitizeString(postalCode, {
+      maxLength: 10,
+    })
+      .toUpperCase()
+      .replace(/\s+/g, "");
+
+    if (!safeName || !safeAddress || !safeCity || !safePostalCode) {
       setError("Please fill all required fields.");
       return;
     }
@@ -44,7 +65,13 @@ function CheckoutPage() {
     const order = {
       id: Date.now(),
       items: orderItems,
-      address: { name, address, city, province, postalCode },
+      address: {
+        name: safeName,
+        address: safeAddress,
+        city: safeCity,
+        province: safeProvince,
+        postalCode: safePostalCode,
+      },
       paymentMethod,
       totals: { subtotal, gst, qst, total },
       createdAt: new Date().toISOString(),

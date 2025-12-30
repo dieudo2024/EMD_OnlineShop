@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StarRatingInput from "./StarRatingInput";
+import { sanitizeReviewPayload } from "../utils/security";
 
 function ReviewForm({ onSubmit }) {
   const [rating, setRating] = useState(5);
@@ -8,15 +9,18 @@ function ReviewForm({ onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!text.trim()) return;
 
-    onSubmit({
-      rating: Number(rating),
+    const safePayload = sanitizeReviewPayload({
+      rating,
       text,
-      reviewerName: name || "Anonymous",
+      reviewerName: name,
       date: new Date().toISOString(),
       source: "user",
     });
+
+    if (!safePayload.text) return;
+
+    onSubmit(safePayload);
 
     setRating(5);
     setText("");

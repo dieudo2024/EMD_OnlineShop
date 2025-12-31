@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { fetchProductById } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { useReviews } from "../context/ReviewsContext";
 import RatingStars from "../components/RatingStars";
 import ReviewList from "../components/ReviewList";
 import ReviewForm from "../components/ReviewForm";
+import { useProductCatalog } from "../context/ProductCatalogContext";
 
 function computeAverageRating(allReviews, fallbackRating) {
   if (!allReviews || allReviews.length === 0) return fallbackRating || null;
@@ -21,21 +21,42 @@ function ProductDetailPage() {
 
   const { addToCart } = useCart();
   const { addReview, getAllReviewsForProduct } = useReviews();
+  const { getProductFromCache, loadProductById } = useProductCatalog();
 
   useEffect(() => {
+    let isActive = true;
+
     async function load() {
+      setLoading(true);
+      setError("");
+      setProduct(null);
+
       try {
-        setLoading(true);
-        const data = await fetchProductById(id);
+        const cached = getProductFromCache(id);
+        if (cached) {
+          if (!isActive) return;
+          setProduct(cached);
+          setLoading(false);
+          return;
+        }
+
+        const data = await loadProductById(id);
+        if (!isActive) return;
         setProduct(data);
       } catch (err) {
+        if (!isActive) return;
         setError(err.message || "Failed to load product");
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     }
+
     load();
-  }, [id]);
+
+    return () => {
+      isActive = false;
+    };
+  }, [id, getProductFromCache, loadProductById]);
 
   const allReviews = useMemo(() => {
     if (!product) return [];

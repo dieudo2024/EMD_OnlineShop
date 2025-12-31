@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { fetchAllProducts, fetchCategories } from "../services/api";
+import { useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useReviews } from "../context/ReviewsContext";
+import { useProductCatalog } from "../context/ProductCatalogContext";
 import { sanitizeString } from "../utils/security";
 
 function computeAverageRating(allReviews) {
@@ -11,11 +11,7 @@ function computeAverageRating(allReviews) {
 }
 
 function HomePage() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { products, categories, loading, error } = useProductCatalog();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -24,25 +20,6 @@ function HomePage() {
   const [sortOption, setSortOption] = useState("none");
 
   const { getAllReviewsForProduct } = useReviews();
-
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        const [prodData, catData] = await Promise.all([
-          fetchAllProducts(),
-          fetchCategories(),
-        ]);
-        setProducts(prodData);
-        setCategories(catData);
-      } catch (err) {
-        setError(err.message || "Failed to load products");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -55,9 +32,7 @@ function HomePage() {
     }
 
     if (selectedCategory !== "all") {
-      result = result.filter(
-        (p) => p.category === selectedCategory
-      );
+      result = result.filter((p) => p.categoryId === selectedCategory);
     }
 
     if (minPrice !== "") {
@@ -127,8 +102,8 @@ function HomePage() {
         >
           <option value="all">All categories</option>
           {categories.map((cat) => (
-            <option key={cat.slug || cat} value={cat.slug || cat}>
-              {cat.name || cat}
+            <option key={cat.id} value={cat.id}>
+              {cat.label}
             </option>
           ))}
         </select>

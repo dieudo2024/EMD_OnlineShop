@@ -382,6 +382,49 @@ a {
   cursor: not-allowed;
 }
 
+.pagination {
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pagination .btn {
+  min-width: 96px;
+  background-color: #111827;
+  color: #f9fafb;
+  border: 1px solid #1f2937;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.pagination .btn:hover:not(:disabled) {
+  background-color: #0b1220;
+  transform: translateY(-1px);
+}
+
+.pagination .btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.pagination span {
+  font-weight: 600;
+  color: #111827;
+}
+
+@media (max-width: 640px) {
+  .pagination {
+    gap: 0.5rem;
+  }
+
+  .pagination span {
+    width: 100%;
+    text-align: center;
+  }
+}
+
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

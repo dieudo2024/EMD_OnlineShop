@@ -33,6 +33,10 @@ function Header() {
           <NavLink to="/cart" className="nav-link">
             Cart <span className="cart-count">{itemCount}</span>
           </NavLink>
+
+          <NavLink to="/admin/principles" className="nav-link">
+            Admin
+          </NavLink>
         </nav>
       </div>
     </header>

@@ -4,6 +4,7 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import AdminPrinciplesPage from "./pages/AdminPrinciplesPage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+          <Route path="/admin/principles" element={<AdminPrinciplesPage />} />
         </Routes>
       </main>
       <Footer />

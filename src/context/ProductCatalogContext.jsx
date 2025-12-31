@@ -9,41 +9,84 @@ export function ProductCatalogProvider({ children }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [total, setTotal] = useState(0);
+  const [pageSize] = useState(20);
+  const pageCache = useRef(new Map());
   const productCache = useRef(new Map());
 
-  const loadCatalog = useCallback(async () => {
-    setLoading(true);
-    setError("");
-
+  const loadCategories = useCallback(async () => {
     try {
-      const [productData, categoryData] = await Promise.all([
-        fetchAllProducts(),
-        fetchCategories(),
-      ]);
-
-      const normalizedProducts = productData.map(normalizeProduct);
+      const categoryData = await fetchCategories();
       const normalizedCategories = dedupeCategories(
         categoryData.map(normalizeCategory)
       );
-
-      setProducts(normalizedProducts);
       setCategories(normalizedCategories);
-
-      const cache = productCache.current;
-      cache.clear();
-      normalizedProducts.forEach((item) => {
-        cache.set(String(item.id), item);
-      });
     } catch (err) {
-      setError(err.message || "Failed to load product catalog");
-    } finally {
-      setLoading(false);
+      setError(err.message || "Failed to load categories");
     }
   }, []);
 
+  const loadPage = useCallback(
+    async (page = 1, limit = pageSize) => {
+      const safeLimit = limit || pageSize;
+      const safePage = Math.max(1, Number(page) || 1);
+      const cacheKey = `${safePage}:${safeLimit}`;
+
+      if (pageCache.current.has(cacheKey)) {
+        const cached = pageCache.current.get(cacheKey);
+        setProducts(cached.items);
+        setTotal(cached.total);
+        setLoading(false);
+        return cached.items;
+      }
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const skip = (safePage - 1) * safeLimit;
+        const { products: productData, total: totalCount } = await fetchAllProducts({
+          limit: safeLimit,
+          skip,
+        });
+
+        const normalizedProducts = productData.map(normalizeProduct);
+        setProducts(normalizedProducts);
+        setTotal(totalCount);
+
+        pageCache.current.set(cacheKey, {
+          items: normalizedProducts,
+          total: totalCount,
+        });
+
+        const cache = productCache.current;
+        normalizedProducts.forEach((item) => {
+          cache.set(String(item.id), item);
+        });
+
+        return normalizedProducts;
+      } catch (err) {
+        const message = err.message || "Failed to load product catalog";
+        setError(message);
+        throw new Error(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pageSize]
+  );
+
+  const refreshCatalog = useCallback(async () => {
+    pageCache.current.clear();
+    productCache.current.clear();
+    setProducts([]);
+    setTotal(0);
+    await Promise.all([loadPage(1, pageSize), loadCategories()]);
+  }, [loadCategories, loadPage, pageSize]);
+
   useEffect(() => {
-    loadCatalog();
-  }, [loadCatalog]);
+    refreshCatalog();
+  }, [refreshCatalog]);
 
   const getProductFromCache = useCallback((id) => {
     const key = String(id);
@@ -87,11 +130,14 @@ export function ProductCatalogProvider({ children }) {
       categories,
       loading,
       error,
-      refreshCatalog: loadCatalog,
+      refreshCatalog,
+      loadPage,
+      total,
+      pageSize,
       getProductFromCache,
       loadProductById,
     }),
-    [products, categories, loading, error, loadCatalog, getProductFromCache, loadProductById]
+    [products, categories, loading, error, refreshCatalog, loadPage, total, pageSize, getProductFromCache, loadProductById]
   );
 
   return (

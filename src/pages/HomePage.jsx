@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useReviews } from "../context/ReviewsContext";
 import { useProductCatalog } from "../context/ProductCatalogContext";
@@ -11,7 +11,15 @@ function computeAverageRating(allReviews) {
 }
 
 function HomePage() {
-  const { products, categories, loading, error } = useProductCatalog();
+  const {
+    products,
+    categories,
+    loading,
+    error,
+    loadPage,
+    total,
+    pageSize,
+  } = useProductCatalog();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -19,7 +27,6 @@ function HomePage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [sortOption, setSortOption] = useState("none");
   const [page, setPage] = useState(1);
-  const pageSize = 20;
 
   const { getAllReviewsForProduct } = useReviews();
 
@@ -89,12 +96,20 @@ function HomePage() {
     return result;
   }, [products, searchTerm, selectedCategory, minPrice, maxPrice, sortOption]);
 
-  const paginatedProducts = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredProducts.slice(start, start + pageSize);
-  }, [filteredProducts, page, pageSize]);
+  useEffect(() => {
+    loadPage(page, pageSize);
+  }, [loadPage, page, pageSize]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const filtersApplied =
+    searchTerm.trim() ||
+    selectedCategory !== "all" ||
+    minPrice !== "" ||
+    maxPrice !== "" ||
+    sortOption !== "none";
+
+  const totalPages = filtersApplied
+    ? Math.max(1, Math.ceil(filteredProducts.length / pageSize))
+    : Math.max(1, Math.ceil(total / pageSize));
 
   if (loading) return <p className="center-text">Loading products...</p>;
   if (error) return <p className="center-text error-text">{error}</p>;
@@ -152,7 +167,7 @@ function HomePage() {
         </select>
       </div>
       <div className="product-grid">
-        {paginatedProducts.map((product) => {
+        {filteredProducts.map((product) => {
           const allReviews = getAllReviewsForProduct(
             product.id,
             product.reviews || []

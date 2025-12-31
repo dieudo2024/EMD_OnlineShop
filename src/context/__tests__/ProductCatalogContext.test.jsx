@@ -37,15 +37,18 @@ describe("ProductCatalogProvider", () => {
   });
 
   it("normalizes product fields and deduplicates categories", async () => {
-    mockFetchAllProducts.mockResolvedValueOnce([
-      {
-        id: 1,
-        title: "<b>Phone</b>",
-        description: "Great <script>bad()</script>",
-        brand: " ACME ",
-        category: "Tech & Gadgets",
-      },
-    ]);
+    mockFetchAllProducts.mockResolvedValueOnce({
+      products: [
+        {
+          id: 1,
+          title: "<b>Phone</b>",
+          description: "Great <script>bad()</script>",
+          brand: " ACME ",
+          category: "Tech & Gadgets",
+        },
+      ],
+      total: 1,
+    });
     mockFetchCategories.mockResolvedValueOnce([
       "Tech & Gadgets",
       "Tech & Gadgets",
@@ -72,7 +75,7 @@ describe("ProductCatalogProvider", () => {
   });
 
   it("caches product lookups to avoid duplicate fetches", async () => {
-    mockFetchAllProducts.mockResolvedValueOnce([]);
+    mockFetchAllProducts.mockResolvedValueOnce({ products: [], total: 0 });
     mockFetchCategories.mockResolvedValueOnce([]);
     mockFetchProductById.mockResolvedValue({
       id: "123",

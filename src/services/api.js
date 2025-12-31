@@ -55,9 +55,13 @@ async function parseJson(response) {
   }
 }
 
-export async function fetchAllProducts() {
-  const data = await parseJson(await request("/products?limit=0"));
-  return data.products;
+export async function fetchAllProducts({ limit = 20, skip = 0 } = {}) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
+  const safeSkip = Math.max(Number(skip) || 0, 0);
+  const data = await parseJson(
+    await request(`/products?limit=${safeLimit}&skip=${safeSkip}`)
+  );
+  return { products: data.products || [], total: data.total || data.products?.length || 0 };
 }
 
 export async function fetchProductById(id) {

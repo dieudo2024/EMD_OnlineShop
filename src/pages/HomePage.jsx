@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useReviews } from "../context/ReviewsContext";
 import { useProductCatalog } from "../context/ProductCatalogContext";
@@ -27,7 +27,6 @@ function HomePage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [sortOption, setSortOption] = useState("none");
   const [page, setPage] = useState(1);
-  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   const { getAllReviewsForProduct } = useReviews();
 
@@ -39,8 +38,8 @@ function HomePage() {
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    if (deferredSearchTerm.trim()) {
-      const term = deferredSearchTerm.toLowerCase();
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
       result = result.filter((p) =>
         p.title.toLowerCase().includes(term)
       );
@@ -95,7 +94,7 @@ function HomePage() {
     }
 
     return result;
-  }, [products, deferredSearchTerm, selectedCategory, minPrice, maxPrice, sortOption]);
+  }, [products, searchTerm, selectedCategory, minPrice, maxPrice, sortOption]);
 
   useEffect(() => {
     loadPage(page, pageSize);

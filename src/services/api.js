@@ -73,12 +73,10 @@ export async function fetchCategories() {
   return parseJson(await request("/products/categories"));
 }
 
-export async function searchProducts(query, { limit = 20, skip = 0 } = {}) {
+export async function searchProducts(query) {
   const safeQuery = encodeURIComponent(query);
-  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
-  const safeSkip = Math.max(Number(skip) || 0, 0);
   const data = await parseJson(
-    await request(`/products/search?q=${safeQuery}&limit=${safeLimit}&skip=${safeSkip}`)
+    await request(`/products/search?q=${safeQuery}`)
   );
-  return { products: data.products || [], total: data.total || data.products?.length || 0 };
+  return data.products;
 }

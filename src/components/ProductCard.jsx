@@ -20,6 +20,8 @@ function ProductCard({ product, averageRating }) {
           src={product.thumbnail}
           alt={product.title}
           className="product-image"
+          loading="lazy"
+          decoding="async"
         />
       </div>
       <div className="product-body">

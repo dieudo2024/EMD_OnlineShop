@@ -18,8 +18,15 @@ function HomePage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sortOption, setSortOption] = useState("none");
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
 
   const { getAllReviewsForProduct } = useReviews();
+
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
+    setPage(1);
+  };
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -82,6 +89,13 @@ function HomePage() {
     return result;
   }, [products, searchTerm, selectedCategory, minPrice, maxPrice, sortOption]);
 
+  const paginatedProducts = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, page, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+
   if (loading) return <p className="center-text">Loading products...</p>;
   if (error) return <p className="center-text error-text">{error}</p>;
 
@@ -93,12 +107,16 @@ function HomePage() {
           type="text"
           placeholder="Search by product name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(sanitizeString(e.target.value, { maxLength: 120 }))}
+          onChange={(e) =>
+            handleFilterChange(setSearchTerm)(
+              sanitizeString(e.target.value, { maxLength: 120 })
+            )
+          }
         />
 
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={(e) => handleFilterChange(setSelectedCategory)(e.target.value)}
         >
           <option value="all">All categories</option>
           {categories.map((cat) => (
@@ -113,19 +131,19 @@ function HomePage() {
           placeholder="Min price"
           value={minPrice}
           min="0"
-          onChange={(e) => setMinPrice(e.target.value)}
+          onChange={(e) => handleFilterChange(setMinPrice)(e.target.value)}
         />
         <input
           type="number"
           placeholder="Max price"
           value={maxPrice}
           min="0"
-          onChange={(e) => setMaxPrice(e.target.value)}
+          onChange={(e) => handleFilterChange(setMaxPrice)(e.target.value)}
         />
 
         <select
           value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
+          onChange={(e) => handleFilterChange(setSortOption)(e.target.value)}
         >
           <option value="none">No sort</option>
           <option value="price-asc">Price: Low - High</option>
@@ -134,7 +152,7 @@ function HomePage() {
         </select>
       </div>
       <div className="product-grid">
-        {filteredProducts.map((product) => {
+        {paginatedProducts.map((product) => {
           const allReviews = getAllReviewsForProduct(
             product.id,
             product.reviews || []
@@ -152,6 +170,26 @@ function HomePage() {
             />
           );
         })}
+      </div>
+
+      <div className="pagination">
+        <button
+          className="btn"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button
+          className="btn"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
       </div>
     </section>
   );

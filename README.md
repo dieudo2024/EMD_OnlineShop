@@ -1,5 +1,3 @@
-Link to the Website (Vercel): https://emd-online-shop.vercel.app/
-
 
 # 🛒 E-Commerce Web Application Capstone Project
 
@@ -15,7 +13,7 @@ The final version of this application is deployed and hosted on **Vercel**.
 
 ### Vercel Deployment Link:
 
-[**INSERT YOUR VERCEL DEPLOYMENT URL HERE**]
+[https://emd-online-shop.vercel.app/](https://emd-online-shop.vercel.app/)
 
 ---
 
@@ -36,8 +34,8 @@ You must have the following software installed:
 Clone this project repository to your local machine using Git:
 
 ```bash
-git clone https://github.com/MounsifEd/CapstoneFinalProject-CWA.git
-cd e-commerce-capstone
+git clone https://github.com/dieudo2024/EMD_OnlineShop.git 
+cd emd_onlineshop
 ```
 Step 2: Install Dependencies
 
@@ -65,7 +63,7 @@ This application fetches all product and category data from the public DummyJSON
 
     API Base URL: https://dummyjson.com
 
-|| Feature List (Functional Requirements)
+## Feature List (Functional Requirements)
 
 The application implements all mandatory functional requirements for the capstone project.
 1. Product Listings & Data Fetching

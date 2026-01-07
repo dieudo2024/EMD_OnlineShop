@@ -7,6 +7,7 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import AdminPrinciplesPage from "./pages/AdminPrinciplesPage";
 import TodaysDealsPage from "./pages/TodaysDealsPage";
 import GiftCardsPage from "./pages/GiftCardsPage";
+import AboutPage from "./pages/AboutPage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/deals" element={<TodaysDealsPage />} />
           <Route path="/gift-cards" element={<GiftCardsPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
           <Route path="/admin/principles" element={<AdminPrinciplesPage />} />

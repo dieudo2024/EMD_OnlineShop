@@ -22,7 +22,7 @@ function Header() {
             Today's Deals
           </NavLink>
 
-          <NavLink  to="#" className={({ isActive }) =>"nav-link disabled-link"}>
+          <NavLink to="/gift-cards" className="nav-link">
             Gift Cards
           </NavLink>
 

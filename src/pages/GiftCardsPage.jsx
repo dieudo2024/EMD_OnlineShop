@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function GiftCardsPage() {
   return (
     <section className="page">
@@ -12,7 +14,9 @@ function GiftCardsPage() {
           Send an instant surprise by email. Choose an amount, add a personal
           message, and your recipient can redeem it at checkout on any order.
         </p>
-        <button className="btn primary">Buy a Gift Card</button>
+        <Link to="/gift-cards/purchase" className="btn primary">
+          Buy a Gift Card
+        </Link>
       </div>
 
       <section className="gift-card-details">

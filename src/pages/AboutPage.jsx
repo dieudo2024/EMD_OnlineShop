@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function AboutPage() {
   return (
     <section className="page about-page">
@@ -38,10 +40,16 @@ function AboutPage() {
       <section className="about-contact">
         <h2>Stay in Touch</h2>
         <p>
-          Have ideas or feedback? Email hello@emdshop.example or join our
-          newsletter for store updates, seasonal collections, and behind-the-
-          scenes stories.
+          Have ideas or feedback? Email
+          <a href="mailto:hello@emdshop.example" className="inline-link">
+            hello@emdshop.example
+          </a>
+          or join our newsletter for store updates, seasonal collections, and
+          behind-the-scenes stories.
         </p>
+        <Link to="/contact" className="btn secondary">
+          Contact Support
+        </Link>
       </section>
     </section>
   );

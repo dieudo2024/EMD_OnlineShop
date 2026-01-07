@@ -18,7 +18,7 @@ function Header() {
             Home
           </NavLink>
 
-          <NavLink  to="#" className={({ isActive }) =>"nav-link disabled-link"}>
+          <NavLink to="/deals" className="nav-link">
             Today's Deals
           </NavLink>
 

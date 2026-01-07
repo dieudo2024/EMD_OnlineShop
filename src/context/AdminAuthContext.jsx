@@ -11,7 +11,7 @@ export function AdminAuthProvider({ children }) {
   });
 
   const login = (passcode) => {
-    const expected = import.meta.env.VITE_ADMIN_PASSCODE || "letmein";
+    const expected = import.meta.env.VITE_ADMIN_PASSCODE || "letmein2026";
     const safeInput = sanitizeString(passcode, { maxLength: 128 });
     const success = safeInput === expected;
     if (success) {

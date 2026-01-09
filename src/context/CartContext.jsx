@@ -1,77 +1,43 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { loadCartFromStorage, saveCartToStorage } from "../services/storage";
+import { Cart } from "../domain/Cart";
+import { CartItem } from "../domain/CartItem";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState(() => loadCartFromStorage());
+  const [cart, setCart] = useState(() => Cart.fromStorage(loadCartFromStorage()));
 
   useEffect(() => {
-    saveCartToStorage(cartItems); 
-  }, [cartItems]);
+    saveCartToStorage(cart.toJSON());
+  }, [cart]);
 
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [
-        ...prev,
-        {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          discountPercentage: product.discountPercentage,
-          thumbnail: product.thumbnail,
-          quantity: 1,
-        },
-      ];
-    });
-  };
+  const addToCart = useCallback((product) => {
+    setCart((prev) => prev.addProduct(product));
+  }, []);
 
-  const removeFromCart = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
+  const removeFromCart = useCallback((id) => {
+    setCart((prev) => prev.removeItem(id));
+  }, []);
 
-  const updateQuantity = (id, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-      return;
+  const updateQuantity = useCallback((id, quantity) => {
+    setCart((prev) => prev.updateQuantity(id, quantity));
+  }, []);
+
+  const clearCart = useCallback(() => {
+    setCart(() => new Cart());
+  }, []);
+
+  const getDiscountedPrice = useCallback((item) => {
+    if (item instanceof CartItem) {
+      return item.getEffectivePrice();
     }
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
+    return CartItem.computeEffectivePrice(item.price, item.discountPercentage);
+  }, []);
 
-  const clearCart = () => setCartItems([]);
-
-  const getDiscountedPrice = (item) => {
-    if (!item.discountPercentage) return item.price;
-    const price = item.price * (1 - item.discountPercentage / 100);
-    return Number(price.toFixed(2));
-  };
-
-  const { itemCount, subtotal } = useMemo(() => {
-    const count = cartItems.reduce(
-      (sum, item) => sum + item.quantity,
-      0
-    );
-    const sub = cartItems.reduce((sum, item) => {
-      const effectivePrice = getDiscountedPrice(item);
-      return sum + effectivePrice * item.quantity;
-    }, 0);
-    return {
-      itemCount: count,
-      subtotal: Number(sub.toFixed(2)),
-    };
-  }, [cartItems]);
+  const cartItems = useMemo(() => cart.getItems(), [cart]);
+  const itemCount = useMemo(() => cart.getItemCount(), [cart]);
+  const subtotal = useMemo(() => cart.getSubtotal(), [cart]);
 
   const value = {
     cartItems,

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { fetchAllProducts, fetchCategories, fetchProductById } from "../services/api";
 import { sanitizeString } from "../utils/security";
+import { Product } from "../domain/Product";
 
 const ProductCatalogContext = createContext(null);
 
@@ -50,7 +51,7 @@ export function ProductCatalogProvider({ children }) {
           skip,
         });
 
-        const normalizedProducts = productData.map(normalizeProduct);
+        const normalizedProducts = productData.map((item) => Product.fromRaw(item));
         setProducts(normalizedProducts);
         setTotal(totalCount);
 
@@ -101,7 +102,7 @@ export function ProductCatalogProvider({ children }) {
 
       try {
         const product = await fetchProductById(key);
-        const normalized = normalizeProduct(product);
+        const normalized = Product.fromRaw(product);
         productCache.current.set(key, normalized);
 
         setProducts((prev) => {
@@ -157,37 +158,18 @@ export function useProductCatalog() {
   return context;
 }
 
-function normalizeProduct(product) {
-  if (!product || typeof product !== "object") return product;
-
-  const title = sanitizeString(product.title, { maxLength: 200 });
-  const description = sanitizeString(product.description, { maxLength: 1000 });
-  const brand = sanitizeString(product.brand, { maxLength: 120 });
-  const categoryLabel = sanitizeString(product.category, { maxLength: 120 }) || "Uncategorized";
-  const categoryId = createSlug(product.category || categoryLabel);
-
-  return {
-    ...product,
-    title,
-    description,
-    brand,
-    category: categoryLabel,
-    categoryId,
-  };
-}
-
 function normalizeCategory(category) {
   if (category && typeof category === "object") {
     const label =
       sanitizeString(category.name, { maxLength: 120 }) ||
       sanitizeString(category.slug, { maxLength: 120 }) ||
       "Uncategorized";
-    const id = createSlug(category.slug || label);
+    const id = Product.createSlug(category.slug || label);
     return { id, label };
   }
 
   const label = sanitizeString(category, { maxLength: 120 }) || "Uncategorized";
-  const id = createSlug(label);
+  const id = Product.createSlug(label);
   return { id, label };
 }
 
@@ -199,12 +181,4 @@ function dedupeCategories(list) {
     }
   });
   return Array.from(seen.values());
-}
-
-function createSlug(value) {
-  const base = sanitizeString(value, { maxLength: 120 })
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return base || "uncategorized";
 }

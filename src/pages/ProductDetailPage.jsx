@@ -77,9 +77,12 @@ function ProductDetailPage() {
   if (error) return <p className="center-text error-text">{error}</p>;
   if (!product) return <p className="center-text">Product not found.</p>;
 
-  const effectivePrice = product.discountPercentage
-    ? product.price * (1 - product.discountPercentage / 100)
-    : product.price;
+  const effectivePrice =
+    typeof product.getEffectivePrice === "function"
+      ? product.getEffectivePrice()
+      : product.discountPercentage
+        ? product.price * (1 - product.discountPercentage / 100)
+        : product.price;
 
   return (
     <section className="page product-detail-page">

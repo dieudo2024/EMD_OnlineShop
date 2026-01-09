@@ -39,54 +39,78 @@ function HomePage() {
     let result = [...products];
 
     if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter((p) =>
-        p.title.toLowerCase().includes(term)
+      const term = searchTerm.trim();
+      result = result.filter((product) =>
+        typeof product.matchesSearch === "function"
+          ? product.matchesSearch(term)
+          : product.title.toLowerCase().includes(term.toLowerCase())
       );
     }
 
     if (selectedCategory !== "all") {
-      result = result.filter((p) => p.categoryId === selectedCategory);
+      result = result.filter((product) =>
+        typeof product.belongsToCategory === "function"
+          ? product.belongsToCategory(selectedCategory)
+          : product.categoryId === selectedCategory
+      );
     }
 
     if (minPrice !== "") {
       const min = Number(minPrice);
-      result = result.filter((p) => {
-        const effectivePrice = p.discountPercentage
-          ? p.price * (1 - p.discountPercentage / 100)
-          : p.price;
+      result = result.filter((product) => {
+        const effectivePrice =
+          typeof product.getEffectivePrice === "function"
+            ? product.getEffectivePrice()
+            : product.discountPercentage
+              ? product.price * (1 - product.discountPercentage / 100)
+              : product.price;
         return effectivePrice >= min;
       });
     }
 
     if (maxPrice !== "") {
       const max = Number(maxPrice);
-      result = result.filter((p) => {
-        const effectivePrice = p.discountPercentage
-          ? p.price * (1 - p.discountPercentage / 100)
-          : p.price;
+      result = result.filter((product) => {
+        const effectivePrice =
+          typeof product.getEffectivePrice === "function"
+            ? product.getEffectivePrice()
+            : product.discountPercentage
+              ? product.price * (1 - product.discountPercentage / 100)
+              : product.price;
         return effectivePrice <= max;
       });
     }
 
     if (sortOption === "price-asc") {
       result.sort((a, b) => {
-        const pa = a.discountPercentage
-          ? a.price * (1 - a.discountPercentage / 100)
-          : a.price;
-        const pb = b.discountPercentage
-          ? b.price * (1 - b.discountPercentage / 100)
-          : b.price;
+        const pa =
+          typeof a.getEffectivePrice === "function"
+            ? a.getEffectivePrice()
+            : a.discountPercentage
+              ? a.price * (1 - a.discountPercentage / 100)
+              : a.price;
+        const pb =
+          typeof b.getEffectivePrice === "function"
+            ? b.getEffectivePrice()
+            : b.discountPercentage
+              ? b.price * (1 - b.discountPercentage / 100)
+              : b.price;
         return pa - pb;
       });
     } else if (sortOption === "price-desc") {
       result.sort((a, b) => {
-        const pa = a.discountPercentage
-          ? a.price * (1 - a.discountPercentage / 100)
-          : a.price;
-        const pb = b.discountPercentage
-          ? b.price * (1 - b.discountPercentage / 100)
-          : b.price;
+        const pa =
+          typeof a.getEffectivePrice === "function"
+            ? a.getEffectivePrice()
+            : a.discountPercentage
+              ? a.price * (1 - a.discountPercentage / 100)
+              : a.price;
+        const pb =
+          typeof b.getEffectivePrice === "function"
+            ? b.getEffectivePrice()
+            : b.discountPercentage
+              ? b.price * (1 - b.discountPercentage / 100)
+              : b.price;
         return pb - pa;
       });
     } else if (sortOption === "rating-desc") {

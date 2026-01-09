@@ -6,9 +6,12 @@ function ProductCard({ product, averageRating }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  const effectivePrice = product.discountPercentage
-    ? product.price * (1 - product.discountPercentage / 100)
-    : product.price;
+  const effectivePrice =
+    typeof product.getEffectivePrice === "function"
+      ? product.getEffectivePrice()
+      : product.discountPercentage
+        ? product.price * (1 - product.discountPercentage / 100)
+        : product.price;
 
   return (
     <div className="product-card">

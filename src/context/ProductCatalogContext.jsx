@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { fetchAllProducts, fetchCategories, fetchProductById } from "../services/api";
 import { sanitizeString } from "../utils/security";
 import { Product } from "../domain/Product";
+import { loadProductCache, saveProductCache } from "../services/storage";
 
 const ProductCatalogContext = createContext(null);
 
@@ -62,6 +63,10 @@ export function ProductCatalogProvider({ children }) {
           total: totalCount,
         });
 
+        if (safePage === 1) {
+          saveProductCache(productData, { total: totalCount, pageSize: safeLimit });
+        }
+
         const cache = productCache.current;
         normalizedProducts.forEach((item) => {
           cache.set(String(item.id), item);
@@ -70,6 +75,19 @@ export function ProductCatalogProvider({ children }) {
         return normalizedProducts;
       } catch (err) {
         const message = err.message || "Failed to load product catalog";
+        if (safePage === 1) {
+          const cached = loadProductCache();
+          if (cached?.items?.length) {
+            const fallbackProducts = cached.items.map((item) => Product.fromRaw(item));
+            setProducts(fallbackProducts);
+            setTotal(cached.metadata?.total ?? fallbackProducts.length);
+            fallbackProducts.forEach((item) => {
+              productCache.current.set(String(item.id), item);
+            });
+            setError("");
+            return fallbackProducts;
+          }
+        }
         setError(message);
         return [];
       } finally {
@@ -87,7 +105,21 @@ export function ProductCatalogProvider({ children }) {
     await Promise.all([loadPage(1, pageSize), loadCategories()]);
   }, [loadCategories, loadPage, pageSize]);
 
+  const retryLoad = useCallback(() => {
+    return refreshCatalog();
+  }, [refreshCatalog]);
+
   useEffect(() => {
+    const cached = loadProductCache();
+    if (cached?.items?.length) {
+      const hydrated = cached.items.map((item) => Product.fromRaw(item));
+      setProducts(hydrated);
+      setTotal(cached.metadata?.total ?? hydrated.length);
+      hydrated.forEach((item) => {
+        productCache.current.set(String(item.id), item);
+      });
+    }
+
     refreshCatalog();
   }, [refreshCatalog]);
 
@@ -140,8 +172,9 @@ export function ProductCatalogProvider({ children }) {
       getProductFromCache,
       loadProductById,
       categoryError,
+      retryLoad,
     }),
-    [products, categories, loading, error, refreshCatalog, loadPage, total, pageSize, getProductFromCache, loadProductById, categoryError]
+    [products, categories, loading, error, refreshCatalog, loadPage, total, pageSize, getProductFromCache, loadProductById, categoryError, retryLoad]
   );
 
   return (

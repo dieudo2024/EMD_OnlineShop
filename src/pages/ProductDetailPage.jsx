@@ -92,6 +92,9 @@ function ProductDetailPage() {
             src={product.images?.[0] || product.thumbnail}
             alt={product.title}
             className="product-detail-image"
+            loading="lazy"
+            width="640"
+            height="640"
           />
         </div>
         <div className="product-detail-info">

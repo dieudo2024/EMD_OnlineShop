@@ -1,6 +1,7 @@
 const CART_KEY = "cart";
 const REVIEWS_KEY = "reviews";
 const LAST_ORDER_KEY = "lastOrder";
+const PRODUCT_CACHE_KEY = "catalog";
 
 // Generic helper – private
 function safeParse(json, fallback) {
@@ -59,5 +60,32 @@ export function saveLastOrderToStorage(order) {
     localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
   } catch (err) {
     console.error("Error saving last order", err);
+  }
+}
+
+/* ---------- PRODUCT CACHE ---------- */
+
+export function loadProductCache() {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(PRODUCT_CACHE_KEY);
+  const data = safeParse(raw, null);
+  if (!data || !Array.isArray(data.items)) {
+    return null;
+  }
+  return data;
+}
+
+export function saveProductCache(items, metadata = {}) {
+  try {
+    const payload = {
+      items,
+      metadata: {
+        savedAt: new Date().toISOString(),
+        ...metadata,
+      },
+    };
+    localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(payload));
+  } catch (err) {
+    console.error("Error saving product cache", err);
   }
 }

@@ -20,6 +20,7 @@ function HomePage() {
     total,
     pageSize,
     categoryError,
+    retryLoad,
   } = useProductCatalog();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -137,11 +138,32 @@ function HomePage() {
     : Math.max(1, Math.ceil(total / pageSize));
 
   if (loading) return <p className="center-text">Loading products...</p>;
-  if (error) return <p className="center-text error-text">{error}</p>;
+  const fatalError = Boolean(error) && products.length === 0;
+
+  if (fatalError) {
+    return (
+      <section className="page">
+        <p className="center-text error-text">{error}</p>
+        <p className="center-text">
+          Check your connection and try again.
+        </p>
+        <div className="center-text">
+          <button className="btn primary" onClick={retryLoad}>
+            Retry
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="page">
       <h1>Products</h1>
+      {error && products.length > 0 ? (
+        <p className="error-text" role="status">
+          {error}. Displaying previously saved items until the network recovers.
+        </p>
+      ) : null}
       {categoryError ? (
         <p className="error-text" role="status">
           {categoryError}. Showing cached categories when available.

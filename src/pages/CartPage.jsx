@@ -32,6 +32,9 @@ function CartPage() {
                   src={item.thumbnail}
                   alt={item.title}
                   className="cart-item-image"
+                  loading="lazy"
+                  width="120"
+                  height="120"
                 />
                 <div className="cart-item-info">
                   <h3>{item.title}</h3>

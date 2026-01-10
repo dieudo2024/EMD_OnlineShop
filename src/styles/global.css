@@ -577,6 +577,13 @@ legend {
   background-color: var(--color-surface-alt);
 }
 
+.filter-controls {
+  display: inline-flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .filters-bar {
   background-color: var(--color-surface);
   padding: var(--space-xl) var(--space-lg);

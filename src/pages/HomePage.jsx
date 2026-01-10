@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
+import SearchBar from "../components/SearchBar";
+import FilterBar from "../components/FilterBar";
+import SortSelect from "../components/SortSelect";
 import { useReviews } from "../context/ReviewsContext";
 import { useProductCatalog } from "../context/ProductCatalogContext";
-import { sanitizeString } from "../utils/security";
 
 function computeAverageRating(allReviews) {
   if (!allReviews || allReviews.length === 0) return null;
@@ -32,10 +34,16 @@ function HomePage() {
 
   const { getAllReviewsForProduct } = useReviews();
 
-  const handleFilterChange = (setter) => (value) => {
+  const updateAndResetPage = (setter) => (value) => {
     setter(value);
     setPage(1);
   };
+
+  const handleSearchChange = updateAndResetPage(setSearchTerm);
+  const handleCategoryChange = updateAndResetPage(setSelectedCategory);
+  const handleMinPriceChange = updateAndResetPage(setMinPrice);
+  const handleMaxPriceChange = updateAndResetPage(setMaxPrice);
+  const handleSortChange = updateAndResetPage(setSortOption);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -179,53 +187,23 @@ function HomePage() {
         </p>
       ) : null}
       <div className="filters">
-        <input
-          type="text"
-          placeholder="Search by product name..."
+        <SearchBar
           value={searchTerm}
-          onChange={(e) =>
-            handleFilterChange(setSearchTerm)(
-              sanitizeString(e.target.value, { maxLength: 120 })
-            )
-          }
+          onChange={handleSearchChange}
+          onSubmit={() => setPage(1)}
         />
 
-        <select
-          value={selectedCategory}
-          onChange={(e) => handleFilterChange(setSelectedCategory)(e.target.value)}
-        >
-          <option value="all">All categories</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.label}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="number"
-          placeholder="Min price"
-          value={minPrice}
-          min="0"
-          onChange={(e) => handleFilterChange(setMinPrice)(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Max price"
-          value={maxPrice}
-          min="0"
-          onChange={(e) => handleFilterChange(setMaxPrice)(e.target.value)}
+        <FilterBar
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+          minPrice={minPrice}
+          onMinPriceChange={handleMinPriceChange}
+          maxPrice={maxPrice}
+          onMaxPriceChange={handleMaxPriceChange}
         />
 
-        <select
-          value={sortOption}
-          onChange={(e) => handleFilterChange(setSortOption)(e.target.value)}
-        >
-          <option value="none">No sort</option>
-          <option value="price-asc">Price: Low - High</option>
-          <option value="price-desc">Price: High - Low</option>
-          <option value="rating-desc">Rating: High - Low</option>
-        </select>
+        <SortSelect value={sortOption} onSortChange={handleSortChange} />
       </div>
       <div className="product-grid">
         {filteredProducts.map((product) => {

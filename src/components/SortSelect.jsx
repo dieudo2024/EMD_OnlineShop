@@ -1,33 +1,29 @@
-export default function SortSelect({ onSortChange }) {
-  // Handle sort selection change
-  const handleSortChange = (e) => {
-    const sortOption = e.target.value;
-    
-    // Notify parent component of sort change
-    if (onSortChange) {
-      onSortChange(sortOption);
-    }
+const DEFAULT_OPTIONS = [
+  { value: "none", label: "No sort" },
+  { value: "price-asc", label: "Price: Low - High" },
+  { value: "price-desc", label: "Price: High - Low" },
+  { value: "rating-desc", label: "Rating: High - Low" },
+];
+
+export default function SortSelect({ value = "none", onSortChange, options = DEFAULT_OPTIONS }) {
+  const handleSortChange = (event) => {
+    onSortChange?.(event.target.value);
   };
 
   return (
     <div className="sort-select">
-     
       <label htmlFor="sort-dropdown">Sort by:</label>
-
-      
       <select
         id="sort-dropdown"
+        value={value}
         onChange={handleSortChange}
-        defaultValue="recommended"
         className="sort-dropdown"
       >
-        <option value="recommended">Recommended</option>
-        <option value="name-asc">Name (A-Z)</option>
-        <option value="name-desc">Name (Z-A)</option>
-        <option value="price-low">Price (Low to High)</option>
-        <option value="price-high">Price (High to Low)</option>
-        <option value="rating">Rating (Highest)</option>
-        <option value="newest">Newest</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
       </select>
     </div>
   );

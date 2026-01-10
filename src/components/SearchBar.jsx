@@ -1,35 +1,27 @@
-import { useState } from 'react';
 import { sanitizeString } from '../utils/security';
 
-export default function SearchBar({ onSearch }) {
-  // State for search input
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // Handle input change
-  const handleChange = (e) => {
-    const value = sanitizeString(e.target.value, { maxLength: 120 });
-    setSearchTerm(value);
-    
-    // Call parent callback function
-    if (onSearch) {
-      onSearch(value);
-    }
+export default function SearchBar({
+  value = "",
+  onChange,
+  onSubmit,
+  placeholder = "Search products...",
+}) {
+  const handleChange = (event) => {
+    const sanitized = sanitizeString(event.target.value, { maxLength: 120 });
+    onChange?.(sanitized);
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Search for:', searchTerm);
-   
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSubmit?.(value);
   };
 
   return (
     <form className="search-bar" onSubmit={handleSubmit}>
-
       <input
         type="text"
-        placeholder="Search products..."
-        value={searchTerm}
+        placeholder={placeholder}
+        value={value}
         onChange={handleChange}
         className="search-input"
       />

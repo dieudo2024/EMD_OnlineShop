@@ -69,7 +69,7 @@ export function ProductCatalogProvider({ children }) {
       } catch (err) {
         const message = err.message || "Failed to load product catalog";
         setError(message);
-        throw new Error(message);
+        return [];
       } finally {
         setLoading(false);
       }

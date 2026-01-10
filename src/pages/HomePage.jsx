@@ -137,7 +137,11 @@ function HomePage() {
     ? Math.max(1, Math.ceil(filteredProducts.length / pageSize))
     : Math.max(1, Math.ceil(total / pageSize));
 
-  if (loading) return <p className="center-text">Loading products...</p>;
+  const shouldShowLoading = loading && products.length === 0;
+
+  if (shouldShowLoading) {
+    return <p className="center-text">Loading products...</p>;
+  }
   const fatalError = Boolean(error) && products.length === 0;
 
   if (fatalError) {
@@ -159,6 +163,11 @@ function HomePage() {
   return (
     <section className="page">
       <h1>Products</h1>
+      {loading && products.length > 0 ? (
+        <p className="muted" role="status">
+          Refreshing catalog…
+        </p>
+      ) : null}
       {error && products.length > 0 ? (
         <p className="error-text" role="status">
           {error}. Displaying previously saved items until the network recovers.

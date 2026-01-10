@@ -10,12 +10,14 @@ export function ProductCatalogProvider({ children }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [categoryError, setCategoryError] = useState("");
   const [total, setTotal] = useState(0);
   const [pageSize] = useState(20);
   const pageCache = useRef(new Map());
   const productCache = useRef(new Map());
 
   const loadCategories = useCallback(async () => {
+    setCategoryError("");
     try {
       const categoryData = await fetchCategories();
       const normalizedCategories = dedupeCategories(
@@ -23,7 +25,7 @@ export function ProductCatalogProvider({ children }) {
       );
       setCategories(normalizedCategories);
     } catch (err) {
-      setError(err.message || "Failed to load categories");
+      setCategoryError(err.message || "Failed to load categories");
     }
   }, []);
 
@@ -137,8 +139,9 @@ export function ProductCatalogProvider({ children }) {
       pageSize,
       getProductFromCache,
       loadProductById,
+      categoryError,
     }),
-    [products, categories, loading, error, refreshCatalog, loadPage, total, pageSize, getProductFromCache, loadProductById]
+    [products, categories, loading, error, refreshCatalog, loadPage, total, pageSize, getProductFromCache, loadProductById, categoryError]
   );
 
   return (

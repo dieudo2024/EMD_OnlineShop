@@ -19,6 +19,7 @@ function HomePage() {
     loadPage,
     total,
     pageSize,
+    categoryError,
   } = useProductCatalog();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -141,6 +142,11 @@ function HomePage() {
   return (
     <section className="page">
       <h1>Products</h1>
+      {categoryError ? (
+        <p className="error-text" role="status">
+          {categoryError}. Showing cached categories when available.
+        </p>
+      ) : null}
       <div className="filters">
         <input
           type="text"

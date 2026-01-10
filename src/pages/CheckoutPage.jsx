@@ -144,31 +144,12 @@ function CheckoutPage() {
 </form>
 
 
-        <div className="order-summary">
-  <h3>Order Summary</h3>
-
-  <div className="summary-row">
-    <span>Subtotal</span>
-    <span>${subtotal.toFixed(2)}</span>
-  </div>
-
-  <div className="summary-row">
-    <span>GST (5%)</span>
-    <span>${gst.toFixed(2)}</span>
-  </div>
-
-  <div className="summary-row">
-    <span>QST (9.975%)</span>
-    <span>${qst.toFixed(2)}</span>
-  </div>
-
-  <div className="summary-divider"></div>
-
-  <div className="summary-row total">
-    <span>Total</span>
-    <span>${total.toFixed(2)}</span>
-  </div>
-</div>
+        <CartSummary
+          subtotal={subtotal}
+          gst={gst}
+          qst={qst}
+          total={total}
+        />
       </div>
     </section>
   );

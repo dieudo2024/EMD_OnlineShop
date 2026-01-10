@@ -99,9 +99,10 @@ export function ProductCatalogProvider({ children }) {
 
   const refreshCatalog = useCallback(async () => {
     pageCache.current.clear();
-    productCache.current.clear();
-    setProducts([]);
-    setTotal(0);
+    if (productCache.current.size === 0) {
+      setProducts([]);
+      setTotal(0);
+    }
     await Promise.all([loadPage(1, pageSize), loadCategories()]);
   }, [loadCategories, loadPage, pageSize]);
 

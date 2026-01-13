@@ -42,7 +42,7 @@ function GiftCardsPage() {
         </p>
         <h4>Need more help?</h4>
         <p>
-          Reach our support team anytime at support@emdshop.example. We are happy
+          Reach our support team anytime at support@emdshop.com. We are happy
           to assist with corporate or bulk orders too.
         </p>
       </section>
